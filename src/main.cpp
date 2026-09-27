@@ -4,6 +4,8 @@
 
 #include "hardware.h"
 #include "serial_log.h"
+#include "rtos_objects.h"
+#include "sensors.h"
 
 // --- TASK A ---
 void TaskA(void *argument) {
@@ -24,17 +26,42 @@ void TaskB(void *argument) {
 }
 
 int main(void) {
-    Serial_EarlyInit(); 
-    Serial_WriteRaw("BCA182 FreeRTOS Multisensor\r\n");
-    Serial_WriteRaw("System starting...\r\n");
+    // DIAGNOSTIC 1: Turn on the built-in PC13 LED to prove CPU is alive
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_13;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
-    Hardware_Init(); 
-    Serial_WriteRaw("Hardware initialized.\r\n");
+    Serial_EarlyInit();
+    Serial_WriteRaw("\r\n--- SYSTEM BOOT DIAGNOSTIC START ---\r\n");
 
-    xTaskCreate(TaskA, "TaskA", 128, nullptr, 2, nullptr);
+    Hardware_Init();
+    Serial_WriteRaw("1. Hardware_Init() OK\r\n");
+
+    /* ========================================================= */
+    /* CRITICAL FREE-RTOS PRIORITY FIXES (This prevents the freeze!) */
+    HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+    NVIC_SetPriority(USART1_IRQn, 5); 
+    NVIC_SetPriority(TIM4_IRQn, 5);
+    /* ========================================================= */
+
+    // CRITICAL: Initialize queues so the sensor task doesn't crash
+    if (!RtosObjects_Create()) {
+        Serial_WriteRaw("CRASH: RTOS OBJECTS FAILED!\r\n");
+        while(1){}
+    }
+    Serial_WriteRaw("2. RtosObjects_Create() OK\r\n");
+
+    // Create all tasks
+    xTaskCreate(TaskA, "TaskA", 128, nullptr, 1, nullptr);
     xTaskCreate(TaskB, "TaskB", 128, nullptr, 1, nullptr);
+    xTaskCreate(SensorTask, "SensorTask", 256, nullptr, 2, nullptr);
+    Serial_WriteRaw("3. Tasks Created OK\r\n");
 
-    Serial_WriteRaw("Starting scheduler...\r\n");
+    Serial_WriteRaw("4. Starting Scheduler...\r\n");
     vTaskStartScheduler();
 
     while (1) {}

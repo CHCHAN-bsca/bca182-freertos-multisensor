@@ -72,7 +72,7 @@ extern "C" void vApplicationIdleHook(void)
     __ISB();
 
 
-    // if (xPortConsumeTickYield() != pdFALSE) {
-    //     taskYIELD();
-    // }
+    if (xPortConsumeTickYield() != pdFALSE) {
+        taskYIELD();
+     }
 }
