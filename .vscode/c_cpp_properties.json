@@ -1,0 +1,56 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "C:/Users/Dell/bca182-freertos-multisensor/src",
+                "C:/Users/Dell/bca182-freertos-multisensor/lib/FreeRTOS",
+                "C:/Users/Dell/bca182-freertos-multisensor/include",
+                "C:/Users/Dell/bca182-freertos-multisensor/lib/FreeRTOS/include",
+                "C:/Users/Dell/bca182-freertos-multisensor/lib/FreeRTOS/portable/GCC/ARM_CM3",
+                "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/CMSIS/Include",
+                "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+                "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/STM32F1xx_HAL_Driver/Inc",
+                "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/STM32F1xx_HAL_Driver/Src",
+                "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/CMSIS/DSP/Include",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "C:/Users/Dell/bca182-freertos-multisensor/src",
+                    "C:/Users/Dell/bca182-freertos-multisensor/lib/FreeRTOS",
+                    "C:/Users/Dell/bca182-freertos-multisensor/include",
+                    "C:/Users/Dell/bca182-freertos-multisensor/lib/FreeRTOS/include",
+                    "C:/Users/Dell/bca182-freertos-multisensor/lib/FreeRTOS/portable/GCC/ARM_CM3",
+                    "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/CMSIS/Include",
+                    "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+                    "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/STM32F1xx_HAL_Driver/Inc",
+                    "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/STM32F1xx_HAL_Driver/Src",
+                    "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/CMSIS/DSP/Include",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60118",
+                "STM32F1",
+                "STM32F103xB",
+                "USE_HAL_DRIVER",
+                "F_CPU=72000000L",
+                ""
+            ],
+            "compilerPath": "C:/Users/Dell/.platformio/packages/toolchain-gccarmnoneeabi@1.70201.0/bin/arm-none-eabi-gcc.exe",
+            "compilerArgs": [
+                "-mthumb",
+                "-mcpu=cortex-m3",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
