@@ -9,6 +9,7 @@
 #include "display.h"
 #include "input.h"
 #include "alarm.h"
+#include "motion.h"
 #include "event_groups.h" // Needed to turn the screen on
 
 // --- TASK A ---
@@ -67,6 +68,7 @@ int main(void) {
     xTaskCreate(DisplayTask, "DisplayTask", 256, nullptr, 1, nullptr);
     xTaskCreate(InputTask, "InputTask", 128, nullptr, 1, nullptr);
     xTaskCreate(AlarmTask, "AlarmTask", 192, nullptr, 2, nullptr);
+    xTaskCreate(MotionTask, "MotionTask", 192, nullptr, 3, nullptr);
     
     Serial_WriteRaw("3. Tasks Created OK\r\n");
 
