@@ -10,25 +10,6 @@
 #include "input.h"
 #include "alarm.h"
 #include "motion.h"
-#include "event_groups.h" // Needed to turn the screen on
-
-// --- TASK A ---
-void TaskA(void *argument) {
-    (void)argument;
-    for (;;) {
-        Serial_Print("Task A running\r\n");
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
-
-// --- TASK B ---
-void TaskB(void *argument) {
-    (void)argument;
-    for (;;) {
-        Serial_Print("Task B running\r\n");
-        vTaskDelay(pdMS_TO_TICKS(1500)); 
-    }
-}
 
 int main(void) {
     // DIAGNOSTIC 1: Turn on the built-in PC13 LED to prove CPU is alive

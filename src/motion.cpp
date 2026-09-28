@@ -8,6 +8,7 @@
 #include "app_types.h"
 #include "rtos_objects.h"
 #include "serial_log.h"
+#include "system_state.h"
 
 namespace {
 
@@ -34,18 +35,22 @@ void MotionTask(void *argument)
 
         if (motionDetected) {
             lastMotionTime = now;
-            xEventGroupSetBits(systemEvents, EVENT_MOTION | EVENT_ACTIVE);
-
-            if (state == SystemState::INACTIVE) {
-                state = SystemState::ACTIVE;
-                Serial_Print("[Motion] ACTIVE: motion detected\r\n");
-            }
+            xEventGroupSetBits(systemEvents, EVENT_MOTION);
         } else {
             xEventGroupClearBits(systemEvents, EVENT_MOTION);
+        }
 
-            if (state == SystemState::ACTIVE &&
-                (now - lastMotionTime) >= pdMS_TO_TICKS(INACTIVITY_TIMEOUT_MS)) {
-                state = SystemState::INACTIVE;
+        const bool timeoutExpired =
+            (now - lastMotionTime) >= pdMS_TO_TICKS(INACTIVITY_TIMEOUT_MS);
+        const SystemState nextState = UpdateSystemState(
+            state, motionDetected, timeoutExpired);
+
+        if (nextState != state) {
+            state = nextState;
+            if (state == SystemState::ACTIVE) {
+                xEventGroupSetBits(systemEvents, EVENT_ACTIVE);
+                Serial_Print("[Motion] ACTIVE: motion detected\r\n");
+            } else {
                 xEventGroupClearBits(systemEvents, EVENT_ACTIVE);
                 Serial_Print("[Motion] INACTIVE: timeout\r\n");
             }
