@@ -66,7 +66,7 @@ int main(void) {
     // Create the actual project tasks
     xTaskCreate(SensorTask, "SensorTask", 256, nullptr, 2, nullptr);
     xTaskCreate(DisplayTask, "DisplayTask", 256, nullptr, 1, nullptr);
-    xTaskCreate(InputTask, "InputTask", 128, nullptr, 1, nullptr);
+    xTaskCreate(InputTask, "InputTask", 128, nullptr, 3, nullptr);
     xTaskCreate(AlarmTask, "AlarmTask", 192, nullptr, 2, nullptr);
     xTaskCreate(MotionTask, "MotionTask", 192, nullptr, 3, nullptr);
     
