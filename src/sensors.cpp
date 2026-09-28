@@ -209,9 +209,11 @@ void SensorTask(void *argument)
 
         if (displaySensorQueue != nullptr) {
             xQueueOverwrite(displaySensorQueue, &data);
+            xQueueOverwrite(alarmSensorQueue, &data);
         }
         if (alarmSensorQueue != nullptr) {
             xQueueOverwrite(alarmSensorQueue, &data);
+
         }
 
         if (!data.dhtValid) {

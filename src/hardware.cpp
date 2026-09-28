@@ -13,11 +13,12 @@ TIM_HandleTypeDef htim4;
 
 namespace {
 
+TIM_HandleTypeDef buzzerTimer;
+
 void MX_GPIO_Init(void);
 void MX_ADC1_Init(void);
 void MX_I2C1_Init(void);
 void MX_TIM4_Init(void);
-void MX_BuzzerPWM_Init(void);
 
 } // namespace
 
@@ -62,16 +63,59 @@ void Hardware_Init(void)
     Serial_WriteRaw("[Boot] DHT safe timer OK\r\n");
 
     Serial_WriteRaw("[Boot] Buzzer PWM init...\r\n");
-    MX_BuzzerPWM_Init();
+    Buzzer_Init();
     Buzzer_Set(false);
     Serial_WriteRaw("[Boot] Buzzer PWM OK\r\n");
 }
 
+void Buzzer_Init(void)
+{
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_TIM1_CLK_ENABLE();
+
+    GPIO_InitTypeDef gpio = {};
+    gpio.Pin = GPIO_PIN_8;
+    gpio.Mode = GPIO_MODE_AF_PP;
+    gpio.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOA, &gpio);
+
+    uint32_t timerClock = HAL_RCC_GetPCLK2Freq();
+    if ((RCC->CFGR & RCC_CFGR_PPRE2) != 0U) {
+        timerClock *= 2U;
+    }
+
+    uint32_t prescaler = timerClock / 1000000U;
+    if (prescaler == 0U) {
+        prescaler = 1U;
+    }
+
+    buzzerTimer.Instance = TIM1;
+    buzzerTimer.Init.Prescaler = prescaler - 1U;
+    buzzerTimer.Init.CounterMode = TIM_COUNTERMODE_UP;
+    buzzerTimer.Init.Period = 999U;
+    buzzerTimer.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    buzzerTimer.Init.RepetitionCounter = 0U;
+    buzzerTimer.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
+    if (HAL_TIM_PWM_Init(&buzzerTimer) != HAL_OK) {
+        Error_Handler();
+    }
+
+    TIM_OC_InitTypeDef pwmConfig = {};
+    pwmConfig.OCMode = TIM_OCMODE_PWM1;
+    pwmConfig.Pulse = 0U;
+    pwmConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
+    pwmConfig.OCFastMode = TIM_OCFAST_DISABLE;
+
+    if (HAL_TIM_PWM_ConfigChannel(&buzzerTimer, &pwmConfig, TIM_CHANNEL_1) != HAL_OK ||
+        HAL_TIM_PWM_Start(&buzzerTimer, TIM_CHANNEL_1) != HAL_OK) {
+        Error_Handler();
+    }
+}
+
 void Buzzer_Set(bool enabled)
 {
-    /* TIM2 is the CubeMX-generated 1 MHz HAL time base. Channel 3 shares the
-     * same counter and can therefore provide a 1 kHz PWM signal on PB10. */
-    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, enabled ? 500U : 0U);
+    __HAL_TIM_SET_COMPARE(&buzzerTimer, TIM_CHANNEL_1, enabled ? 500U : 0U);
 }
 
 namespace {
@@ -83,8 +127,6 @@ void MX_GPIO_Init(void)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_AFIO_CLK_ENABLE();
-    __HAL_AFIO_REMAP_TIM2_ENABLE();
 
     /* DHT22 data. */
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
@@ -106,12 +148,6 @@ void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /* PB10 = TIM2_CH3 buzzer PWM. */
-    GPIO_InitStruct.Pin = GPIO_PIN_10;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 void MX_ADC1_Init(void)
@@ -184,16 +220,6 @@ void MX_TIM4_Init(void)
     TIM4->CR1 = TIM_CR1_CEN;
 
     htim4.Instance = TIM4;
-}
-
-void MX_BuzzerPWM_Init(void)
-{
-    /* TIM2 is already running as the 1 MHz HAL time base with ARR=999. */
-    MODIFY_REG(TIM2->CCMR2,
-               TIM_CCMR2_CC3S | TIM_CCMR2_OC3M | TIM_CCMR2_OC3PE,
-               TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3PE);
-    TIM2->CCR3 = 0U;
-    SET_BIT(TIM2->CCER, TIM_CCER_CC3E);
 }
 
 } // namespace
