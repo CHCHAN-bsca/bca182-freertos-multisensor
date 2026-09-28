@@ -6,6 +6,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "event_groups.h"
 
 #include "app_types.h"
 #include "hardware.h"
@@ -203,13 +204,8 @@ void SensorTask(void *argument)
 
         data.lightLevel = ReadLightPercent();
 
-        // Safe Queue Checks to prevent configASSERT crashes!
-        bool motion = false;
-        if (motionStateQueue != nullptr) {
-            if (xQueuePeek(motionStateQueue, &motion, 0) == pdTRUE) {
-                data.motionDetected = motion;
-            }
-        }
+        data.motionDetected =
+            (xEventGroupGetBits(systemEvents) & EVENT_MOTION) != 0U;
 
         if (displaySensorQueue != nullptr) {
             xQueueOverwrite(displaySensorQueue, &data);

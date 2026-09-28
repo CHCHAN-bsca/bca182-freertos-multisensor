@@ -27,7 +27,8 @@ void FormatSensorValue(float val, char *buf, size_t bufSize) {
 }
 
 // Renamed UI render function with tweaked string capitalizations
-void RenderScreen(const SensorData &sensorData, DisplayMode currentMode) {
+void RenderScreen(const SensorData &sensorData, DisplayMode currentMode,
+                  bool alarmActive) {
     char textBuf[32];
     SSD1306_Clear();
     
@@ -69,6 +70,10 @@ void RenderScreen(const SensorData &sensorData, DisplayMode currentMode) {
             break;
     }
 
+    if (alarmActive) {
+        SSD1306_DrawText(0, 6, "ALARM");
+    }
+
     SSD1306_Update();
 }
 
@@ -86,11 +91,9 @@ if (!SSD1306_Init()) {
         Serial_Print("[Display] OLED Online\r\n");
     }
 
-    // WAKE THE SYSTEM UP HERE INSTEAD! (100% Safe)
-    xEventGroupSetBits(systemEvents, EVENT_ACTIVE);
-
     SensorData currentData = {0.0f, 0.0f, 0, false, false};
     DisplayMode currentMode = DisplayMode::TEMPERATURE;
+    bool alarmActive = false;
     bool isScreenOn = true;
 
     for (;;) {
@@ -112,7 +115,13 @@ if (!SSD1306_Init()) {
             }
         }
 
-        bool systemActive = (xEventGroupGetBits(systemEvents) & EVENT_ACTIVE) != 0U;
+        const EventBits_t eventBits = xEventGroupGetBits(systemEvents);
+        const bool systemActive = (eventBits & EVENT_ACTIVE) != 0U;
+        const bool alarmNowActive = (eventBits & EVENT_ALARM) != 0U;
+        if (alarmNowActive != alarmActive) {
+            alarmActive = alarmNowActive;
+            refreshNeeded = true;
+        }
 
         if (!systemActive) {
             if (isScreenOn) {
@@ -129,7 +138,7 @@ if (!SSD1306_Init()) {
             }
             
             if (refreshNeeded) {
-                RenderScreen(currentData, currentMode);
+                RenderScreen(currentData, currentMode, alarmActive);
             }
         }
 

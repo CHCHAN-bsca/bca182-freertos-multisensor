@@ -3,7 +3,6 @@
 #include "stm32f1xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
 #include "event_groups.h"
 
 #include "app_types.h"
@@ -27,7 +26,6 @@ void MotionTask(void *argument)
     bool previousMotion = false;
 
     xEventGroupSetBits(systemEvents, EVENT_ACTIVE);
-    xQueueOverwrite(motionStateQueue, &previousMotion);
     Serial_Print("[Motion] Task initialized\r\n");
 
     for (;;) {
@@ -55,8 +53,6 @@ void MotionTask(void *argument)
 
         if (motionDetected != previousMotion) {
             previousMotion = motionDetected;
-            xQueueOverwrite(motionStateQueue, &previousMotion);
-
             Serial_Print(motionDetected ? "[Motion] DETECTED\r\n"
                                          : "[Motion] CLEAR\r\n");
         }
