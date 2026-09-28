@@ -18,6 +18,7 @@
                 "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/STM32F1xx_HAL_Driver/Inc",
                 "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/STM32F1xx_HAL_Driver/Src",
                 "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/CMSIS/DSP/Include",
+                "C:/Users/Dell/bca182-freertos-multisensor/.pio/libdeps/bluepill_f103c8/Unity/src",
                 ""
             ],
             "browse": {
@@ -33,6 +34,7 @@
                     "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/STM32F1xx_HAL_Driver/Inc",
                     "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/STM32F1xx_HAL_Driver/Src",
                     "C:/Users/Dell/.platformio/packages/framework-stm32cubef1/Drivers/CMSIS/DSP/Include",
+                    "C:/Users/Dell/bca182-freertos-multisensor/.pio/libdeps/bluepill_f103c8/Unity/src",
                     ""
                 ]
             },
@@ -42,6 +44,7 @@
                 "STM32F103xB",
                 "USE_HAL_DRIVER",
                 "F_CPU=72000000L",
+                "UNITY_INCLUDE_CONFIG_H",
                 ""
             ],
             "compilerPath": "C:/Users/Dell/.platformio/packages/toolchain-gccarmnoneeabi@1.70201.0/bin/arm-none-eabi-gcc.exe",
