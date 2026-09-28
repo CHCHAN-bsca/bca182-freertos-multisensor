@@ -17,13 +17,9 @@ namespace {
 void FormatSensorValue(float val, char *buf, size_t bufSize) {
     int intVal = static_cast<int>(val * 10.0f + (val >= 0.0f ? 0.5f : -0.5f));
     bool isNeg = (intVal < 0);
-    if (isNeg) intVal = -intVal;
-
-    if (isNeg) {
-        std::snprintf(buf, bufSize, "-%d.%d", intVal / 10, intVal % 10);
-    } else {
-        std::snprintf(buf, bufSize, "%d.%d", intVal / 10, intVal % 10);
-    }
+    const int magnitude = isNeg ? -intVal : intVal;
+    std::snprintf(buf, bufSize, "%s%d.%d", isNeg ? "-" : "",
+                  magnitude / 10, magnitude % 10);
 }
 
 // Renamed UI render function with tweaked string capitalizations

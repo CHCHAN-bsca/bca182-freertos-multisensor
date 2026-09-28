@@ -22,11 +22,6 @@ void MX_TIM4_Init(void);
 
 } // namespace
 
-bool Hardware_VectorTableOk(void)
-{
-    return SCB->VTOR == FLASH_BASE;
-}
-
 void Hardware_Init(void)
 {
     /*
