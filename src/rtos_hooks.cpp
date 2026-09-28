@@ -64,15 +64,11 @@ extern "C" void vAssertCalled(const char *file, int line)
 
 extern "C" void vApplicationIdleHook(void)
 {
-    /*
-     * Sleep while nothing is Ready.
-     */
     __DSB();
-    __WFI();
+    __WFI(); // Keep this as WFI!
     __ISB();
-
 
     if (xPortConsumeTickYield() != pdFALSE) {
         taskYIELD();
-     }
+    }
 }

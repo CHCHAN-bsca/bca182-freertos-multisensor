@@ -1,5 +1,7 @@
 #include "rtos_objects.h"
+#include "app_types.h"
 
+// 1. Declare the actual instances of the extern variables
 QueueHandle_t displaySensorQueue = nullptr;
 QueueHandle_t alarmSensorQueue = nullptr;
 QueueHandle_t displayModeQueue = nullptr;
@@ -9,23 +11,28 @@ EventGroupHandle_t systemEvents = nullptr;
 
 bool RtosObjects_Create(void)
 {
+    // 2. Create the Queues (length of 1 for overwrite behavior)
     displaySensorQueue = xQueueCreate(1, sizeof(SensorData));
-    alarmSensorQueue = xQueueCreate(1, sizeof(SensorData));
-    displayModeQueue = xQueueCreate(1, sizeof(DisplayMode));
-    motionStateQueue = xQueueCreate(1, sizeof(bool));
+    alarmSensorQueue   = xQueueCreate(1, sizeof(SensorData));
+    displayModeQueue   = xQueueCreate(1, sizeof(DisplayMode));
+    motionStateQueue   = xQueueCreate(1, sizeof(bool));
+
+    // 3. Create the Mutex (for safe serial printing later)
     serialMutex = xSemaphoreCreateMutex();
+
+    // 4. Create the Event Group (for alarm triggers)
     systemEvents = xEventGroupCreate();
 
-    if (displaySensorQueue == nullptr || alarmSensorQueue == nullptr ||
-        displayModeQueue == nullptr || motionStateQueue == nullptr ||
-        serialMutex == nullptr || systemEvents == nullptr) {
-        return false;
+    // 5. Ensure EVERY object was created successfully
+    if (displaySensorQueue == nullptr || 
+        alarmSensorQueue == nullptr || 
+        displayModeQueue == nullptr || 
+        motionStateQueue == nullptr || 
+        serialMutex == nullptr || 
+        systemEvents == nullptr) 
+    {
+        return false; // Out of memory!
     }
 
-    DisplayMode initialMode = DisplayMode::TEMPERATURE;
-    bool noMotion = false;
-    xQueueOverwrite(displayModeQueue, &initialMode);
-    xQueueOverwrite(motionStateQueue, &noMotion);
-    xEventGroupSetBits(systemEvents, EVENT_ACTIVE);
     return true;
 }

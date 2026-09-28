@@ -182,6 +182,7 @@ void SensorTask(void *argument)
 
     SensorData data = {25.0f, 50.0f, 50, false, false};
     TickType_t lastWakeTime = xTaskGetTickCount();
+    unsigned telemetryCycle = 0U;
 
     for (;;) {
         float temperature = data.temperature;
@@ -217,25 +218,23 @@ void SensorTask(void *argument)
             xQueueOverwrite(alarmSensorQueue, &data);
         }
 
-        char tempText[16];
-        char humText[16];
-        char lightText[16];
-        
-        PrintFixed1(data.temperature, tempText, sizeof(tempText));
-        PrintFixed1(data.humidity, humText, sizeof(humText));
-        std::snprintf(lightText, sizeof(lightText), "%d", data.lightLevel);
+        if (!data.dhtValid) {
+            Serial_Print("[SensorTask] DHT read error\r\n");
+            telemetryCycle = 0U;
+        } else if (++telemetryCycle >= 10U) {
+            char telemetry[96];
+            char tempText[16];
+            char humText[16];
 
-        // --- CHUNKED PRINTING TO BYPASS UART OVERFLOW ---
-        Serial_Print("[SensorTask] T=");
-        Serial_Print(tempText);
-        Serial_Print(" C H=");
-        Serial_Print(humText);
-        Serial_Print(" % Light=");
-        Serial_Print(lightText);
-        Serial_Print(" % Motion=");
-        Serial_Print(data.motionDetected ? "YES" : "NO");
-        Serial_Print(" DHT=");
-        Serial_Print(data.dhtValid ? "OK\r\n" : "READ ERROR\r\n");
+            telemetryCycle = 0U;
+            PrintFixed1(data.temperature, tempText, sizeof(tempText));
+            PrintFixed1(data.humidity, humText, sizeof(humText));
+            std::snprintf(telemetry, sizeof(telemetry),
+                          "[SensorTask] T=%s C H=%s %% Light=%d %% Motion=%s DHT=OK\r\n",
+                          tempText, humText, data.lightLevel,
+                          data.motionDetected ? "YES" : "NO");
+            Serial_Print(telemetry);
+        }
 
         vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(2000));
     }

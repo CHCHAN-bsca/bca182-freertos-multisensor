@@ -6,6 +6,9 @@
 #include "serial_log.h"
 #include "rtos_objects.h"
 #include "sensors.h"
+#include "display.h"
+#include "input.h"
+#include "event_groups.h" // Needed to turn the screen on
 
 // --- TASK A ---
 void TaskA(void *argument) {
@@ -49,20 +52,22 @@ int main(void) {
     /* ========================================================= */
 
     // CRITICAL: Initialize queues so the sensor task doesn't crash
+   // CRITICAL: Initialize queues and RTOS objects
     if (!RtosObjects_Create()) {
         Serial_WriteRaw("CRASH: RTOS OBJECTS FAILED!\r\n");
         while(1){}
     }
     Serial_WriteRaw("2. RtosObjects_Create() OK\r\n");
 
-    // Create all tasks
-    xTaskCreate(TaskA, "TaskA", 128, nullptr, 1, nullptr);
-    xTaskCreate(TaskB, "TaskB", 128, nullptr, 1, nullptr);
+  
+
+    // Create the actual project tasks
     xTaskCreate(SensorTask, "SensorTask", 256, nullptr, 2, nullptr);
+    xTaskCreate(DisplayTask, "DisplayTask", 256, nullptr, 1, nullptr);
+    xTaskCreate(InputTask, "InputTask", 128, nullptr, 1, nullptr);
+    
     Serial_WriteRaw("3. Tasks Created OK\r\n");
 
     Serial_WriteRaw("4. Starting Scheduler...\r\n");
     vTaskStartScheduler();
-
-    while (1) {}
 }
