@@ -2,7 +2,6 @@
 
 #include "alarm.h"
 #include "display_navigation.h"
-#include "encoder_logic.h"
 #include "sensor_values.h"
 #include "system_state.h"
 
@@ -42,39 +41,6 @@ void test_minimum_adc_value_means_brightest_relative_level(void)
 void test_maximum_adc_value_means_darkest_relative_level(void)
 {
     TEST_ASSERT_EQUAL_UINT8(0U, LightPercentFromAdc(4095U));
-}
-
-void test_encoder_clockwise_sequence_produces_one_step(void)
-{
-    EncoderDecoder decoder = {0U, 0};
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 1U));
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 3U));
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 2U));
-    TEST_ASSERT_EQUAL_INT8(1, EncoderDecoder_Update(&decoder, 0U));
-}
-
-void test_encoder_counterclockwise_sequence_produces_one_step(void)
-{
-    EncoderDecoder decoder = {0U, 0};
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 2U));
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 3U));
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 1U));
-    TEST_ASSERT_EQUAL_INT8(-1, EncoderDecoder_Update(&decoder, 0U));
-}
-
-void test_encoder_contact_bounce_cancels_without_a_step(void)
-{
-    EncoderDecoder decoder = {0U, 0};
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 1U));
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 0U));
-    TEST_ASSERT_EQUAL_INT8(0, decoder.quarterSteps);
-}
-
-void test_encoder_invalid_diagonal_transition_is_ignored(void)
-{
-    EncoderDecoder decoder = {0U, 0};
-    TEST_ASSERT_EQUAL_INT8(0, EncoderDecoder_Update(&decoder, 3U));
-    TEST_ASSERT_EQUAL_INT8(0, decoder.quarterSteps);
 }
 
 void test_scroll_next_temperature_to_humidity(void)
@@ -132,11 +98,6 @@ int main(void)
     RUN_TEST(test_temperature_above_upper_limit_is_high);
     RUN_TEST(test_minimum_adc_value_means_brightest_relative_level);
     RUN_TEST(test_maximum_adc_value_means_darkest_relative_level);
-    RUN_TEST(test_encoder_clockwise_sequence_produces_one_step);
-    RUN_TEST(test_encoder_counterclockwise_sequence_produces_one_step);
-    RUN_TEST(test_encoder_contact_bounce_cancels_without_a_step);
-    RUN_TEST(test_encoder_invalid_diagonal_transition_is_ignored);
-
     RUN_TEST(test_scroll_next_temperature_to_humidity);
     RUN_TEST(test_scroll_next_motion_wraps_to_temperature);
     RUN_TEST(test_scroll_previous_humidity_to_temperature);

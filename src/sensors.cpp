@@ -12,6 +12,7 @@
 #include "hardware.h"
 #include "rtos_objects.h"
 #include "serial_log.h"
+#include "sensor_values.h"
 
 namespace {
 
@@ -150,11 +151,7 @@ int ReadLightPercent(void)
     const uint32_t raw = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);
 
-    uint32_t percent = (raw * 100U) / 4095U;
-    if (percent > 100U) {
-        percent = 100U;
-    }
-    return static_cast<int>(percent);
+    return static_cast<int>(LightPercentFromAdc(raw));
 }
 
 void PrintFixed1(float value, char *buffer, size_t bufferSize)
@@ -209,11 +206,9 @@ void SensorTask(void *argument)
 
         if (displaySensorQueue != nullptr) {
             xQueueOverwrite(displaySensorQueue, &data);
-            xQueueOverwrite(alarmSensorQueue, &data);
         }
         if (alarmSensorQueue != nullptr) {
             xQueueOverwrite(alarmSensorQueue, &data);
-
         }
 
         if (!data.dhtValid) {

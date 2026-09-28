@@ -13,7 +13,7 @@
 namespace {
 
 constexpr uint16_t MOTION_PIN = GPIO_PIN_1;
-constexpr TickType_t MOTION_SAMPLE_PERIOD = pdMS_TO_TICKS(100);
+constexpr TickType_t MOTION_SAMPLE_PERIOD = pdMS_TO_TICKS(250);
 
 } // namespace
 
@@ -35,9 +35,6 @@ void MotionTask(void *argument)
 
         if (motionDetected) {
             lastMotionTime = now;
-            xEventGroupSetBits(systemEvents, EVENT_MOTION);
-        } else {
-            xEventGroupClearBits(systemEvents, EVENT_MOTION);
         }
 
         const bool timeoutExpired =
@@ -58,6 +55,11 @@ void MotionTask(void *argument)
 
         if (motionDetected != previousMotion) {
             previousMotion = motionDetected;
+            if (motionDetected) {
+                xEventGroupSetBits(systemEvents, EVENT_MOTION);
+            } else {
+                xEventGroupClearBits(systemEvents, EVENT_MOTION);
+            }
             Serial_Print(motionDetected ? "[Motion] DETECTED\r\n"
                                          : "[Motion] CLEAR\r\n");
         }

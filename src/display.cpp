@@ -138,6 +138,6 @@ if (!SSD1306_Init()) {
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(100)); // Standard 10Hz screen refresh
+        vTaskDelay(pdMS_TO_TICKS(250));
     }
 }
