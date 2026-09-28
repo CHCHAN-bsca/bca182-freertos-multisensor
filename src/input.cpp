@@ -7,29 +7,9 @@
 #include "event_groups.h"
 
 #include "app_types.h"
+#include "display_navigation.h"
 #include "rtos_objects.h"
 #include "serial_log.h"
-
-// Built-in wraparound logic (Replaces external logic.h dependency)
-DisplayMode ScrollNext(DisplayMode current) {
-    switch (current) {
-        case DisplayMode::TEMPERATURE: return DisplayMode::HUMIDITY;
-        case DisplayMode::HUMIDITY:    return DisplayMode::LIGHT;
-        case DisplayMode::LIGHT:       return DisplayMode::MOTION;
-        case DisplayMode::MOTION:      return DisplayMode::TEMPERATURE;
-        default:                       return DisplayMode::TEMPERATURE;
-    }
-}
-
-DisplayMode ScrollPrev(DisplayMode current) {
-    switch (current) {
-        case DisplayMode::TEMPERATURE: return DisplayMode::MOTION;
-        case DisplayMode::HUMIDITY:    return DisplayMode::TEMPERATURE;
-        case DisplayMode::LIGHT:       return DisplayMode::HUMIDITY;
-        case DisplayMode::MOTION:      return DisplayMode::LIGHT;
-        default:                       return DisplayMode::TEMPERATURE;
-    }
-}
 
 void InputTask(void *argument) {
     (void)argument;
